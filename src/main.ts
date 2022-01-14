@@ -135,17 +135,17 @@ const setupGUI = () => {
 
   // Emitted before the application starts closing its windows
   app.on('before-quit', () => {
-    console.log('app: before quit');
+    console.debug('app: before quit');
   });
 
   // Emitted when all windows have been closed and the application will quit.
   app.on('will-quit', () => {
-    console.log('app: will quit');
+    console.debug('app: will quit');
   });
 
   // Emitted when the application is quitting.
   app.on('quit', () => {
-    console.log('app: quit');
+    console.debug('app: quit');
   });
 
   app.on('window-all-closed', () => {
@@ -215,6 +215,7 @@ class MIBReaderConfig {
 
   constructor() {
     this.community = 'public';
+    this.debug = false;
     this.gui = false;
     this.info = false;
     this.json = false;
@@ -224,8 +225,6 @@ class MIBReaderConfig {
     this.trapPort = 162;
     this.targets = [];
     this.oids = [];
-    this.debug = isDevelopment;
-    // this.debug = true;
     this.walk = false;
     this.maxRepetitions = 20;
     this.retries = 10;
@@ -270,7 +269,7 @@ class MIBReader {
   store: any;
 
   constructor(argv: string[]) {
-    console.log(`** starting app isPackaged=${app.isPackaged} NODE_ENV=${process.env.NODE_ENV} **`);
+    console.log(`** starting app isPackaged=${app.isPackaged} NODE_ENV=${process.env.NODE_ENV} argc=${argv.length} **`);
     this.appVersion = '0.0.1';
     this.config = new MIBReaderConfig();
     this.entryMap = [];
@@ -324,8 +323,9 @@ class MIBReader {
   }
 
   processCommandLine(argv: string[]) {
-    for (let j = 2; j < argv.length; j += 1) {
-      // this.debug(`${j} -> ${argv[j]}`);
+    const from = app.isPackaged ? 1 : 2;
+    for (let j = from; j < argv.length; j += 1) {
+      this.debug(`${j} -> ${argv[j]}`);
       if (argv[j] === '-f' || argv[j] === '--config') {
         this.parseJSON(
           readFileSync(argv[j + 1], { encoding: 'utf-8' }),
@@ -344,16 +344,8 @@ class MIBReader {
       .option('-i, --info', 'generate additional result details')
       .option('-j, --json', 'generate JSON rather than XML')
       .option('-o, --oids <oids...>', 'specify oids of interest')
-      .option(
-        '-p, --port <port>',
-        'specify port to use',
-        this.config.port.toString()
-      )
-      .option(
-        '-r, --results <path>',
-        'specify path to write results to',
-        this.config.port.toString()
-      )
+      .option('-p, --port <port>', 'specify port to use', this.config.port.toString())
+      .option('-r, --results <path>', 'specify path to write results to', this.config.results)
       .option('-t, --targets <device...>', 'target devices')
       .version(this.appVersion)
       .addOption(
@@ -368,7 +360,7 @@ class MIBReader {
         'Output the MIB tree at the specified OIDs',
         this.config.walk
       )
-      .parse(argv);
+      .parse(argv, { from: app.isPackaged ? 'electron' : 'node' });
     const options = program.opts();
 
     if (argv.length === 2) program.help({ error: true });
@@ -392,12 +384,13 @@ class MIBReader {
 
       if (this.entryMap[v.oid]) {
         const entry = this.entryMap[v.oid];
-        this.log(entry);
         result.description = entry.DESCRIPTION;
         result.module = entry.ModuleName;
         result.namespace = entry.NameSpace;
         result.name = entry.ObjectName;
         result.status = entry.STATUS;
+        // console.log(`added details ${result}`);
+        // this.debug(entry);
       }
     }
 
@@ -408,15 +401,15 @@ class MIBReader {
       this.results.push(x);
     }
 
-    this.log(
+    this.debug(
       `result target='${target} oid='${v.oid}' value='${v.value}' type='${
         v.type
       } (${snmp.ObjectType[v.type]})'`
     );
-    this.log(v);
+    this.debug(v);
     if (this.entryMap[v.oid]) {
       const entry = this.entryMap[v.oid];
-      this.log(entry);
+      this.debug(entry);
     }
   }
 
@@ -479,16 +472,16 @@ class MIBReader {
 
         this.promises.push(p);
       }
-
-      Promise.all(this.promises)
-        .then(() => {
-          this.log('all results captured');
-          this.reportResults();
-        })
-        .catch((err) => {
-          console.error('Promise.all error', err);
-        });
     });
+
+    Promise.all(this.promises)
+      .then(() => {
+        this.debug('all results captured');
+        this.reportResults();
+      })
+      .catch((err) => {
+        console.error('Promise.all error', err);
+      });
   }
 
   async reportResults() {
