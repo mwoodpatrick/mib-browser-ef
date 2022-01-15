@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable max-classes-per-file */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
@@ -19,6 +20,7 @@ import { promisify } from 'util';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
+import chalk from 'chalk';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
@@ -269,7 +271,6 @@ class MIBReader {
   store: any;
 
   constructor(argv: string[]) {
-    console.log(`** starting app isPackaged=${app.isPackaged} NODE_ENV=${process.env.NODE_ENV} argc=${argv.length} **`);
     this.appVersion = '0.0.1';
     this.config = new MIBReaderConfig();
     this.entryMap = [];
@@ -278,7 +279,10 @@ class MIBReader {
 
     this.processCommandLine(argv);
 
-    if (this.debug) isDevelopment = true;
+    if (this.debug) {
+      isDevelopment = true;
+      console.log(`** starting app isPackaged=${app.isPackaged} NODE_ENV=${process.env.NODE_ENV} argc=${argv.length} **`);
+    }
 
     if (!this.config.json)
       this.results.push('<?xml version="1.0" encoding="UTF-8"?>', '<results>');
@@ -337,6 +341,7 @@ class MIBReader {
 
     const program = new Command('mib-browser')
       .allowUnknownOption()
+      .addHelpText('before', `A Simple MIB Browser to query SNMP values.`)
       .option('-c, --community <name>', 'community', this.config.community)
       .option('-d, --debug', 'output extra debugging', this.config.debug)
       .option('-f, --config <path>', 'specify config file')
@@ -360,10 +365,16 @@ class MIBReader {
         'Output the MIB tree at the specified OIDs',
         this.config.walk
       )
+      .addHelpText('after', `
+Example call:
+  $ mib-browser.exe --config config.json -r results/myresults  --info -j -gui
+  
+  For more info see: ` + chalk.blue('https://github.com/mwoodpatrick/mib-browser-ef/blob/master/README.md')
+  )
       .parse(argv, { from: app.isPackaged ? 'electron' : 'node' });
     const options = program.opts();
 
-    if (argv.length === 2) program.help({ error: true });
+    if (argv.length === from) program.help({ error: true });
 
     this.config.initFromRaw(options, 'command line');
 
