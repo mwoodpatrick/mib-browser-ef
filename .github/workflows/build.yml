@@ -3,9 +3,13 @@
 name: Build
 
 # Controls when the workflow will run
+# Triggers the workflow on push or pull request events but only for the main & dev branches
+
 on:
-  [push, pull_request]:
-  # Triggers the workflow on push or pull request events but only for the main & dev branches
+  push:
+    branches: [ main, dev ]
+
+  pull:
     branches: [ main, dev ]
 
   # Allows you to run this workflow manually from the Actions tab
