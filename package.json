@@ -62,6 +62,7 @@
               "owner": "mwoodpatrick",
               "name": "mib-browser-ef"
             },
+            "draft": true,
             "prerelease": true
           }
         }
