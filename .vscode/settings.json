@@ -1,0 +1,6 @@
+{
+    "yaml.schemas": {
+        "https://json.schemastore.org/github-workflow.json": "file:///mnt/wsl/projects/git/www/westie/submodules/electron-forge-app/.github/workflows/build.yml"
+    },
+    "typescript.tsdk": "node_modules/typescript/lib"
+}

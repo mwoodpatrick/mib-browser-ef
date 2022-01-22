@@ -70,6 +70,8 @@
     }
   },
   "devDependencies": {
+    "@babel/core": "^7.16.10",
+    "@babel/preset-react": "^7.16.7",
     "@electron-forge/cli": "^6.0.0-beta.63",
     "@electron-forge/maker-deb": "^6.0.0-beta.63",
     "@electron-forge/maker-rpm": "^6.0.0-beta.63",
@@ -77,9 +79,12 @@
     "@electron-forge/maker-zip": "^6.0.0-beta.63",
     "@electron-forge/plugin-webpack": "^6.0.0-beta.63",
     "@electron-forge/publisher-github": "^6.0.0-beta.63",
+    "@types/react": "^17.0.38",
+    "@types/react-dom": "^17.0.11",
     "@typescript-eslint/eslint-plugin": "^5.9.0",
     "@typescript-eslint/parser": "^5.9.0",
     "@vercel/webpack-asset-relocator-loader": "^1.7.0",
+    "babel-loader": "^8.2.3",
     "css-loader": "^6.5.1",
     "electron": "16.0.6",
     "electron-devtools-installer": "^3.2.0",
@@ -99,6 +104,8 @@
     "electron-squirrel-startup": "^1.0.0",
     "electron-updater": "^4.6.1",
     "net-snmp": "^3.5.8",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "regenerator-runtime": "^0.13.9",
     "xml": "^1.0.1"
   }
